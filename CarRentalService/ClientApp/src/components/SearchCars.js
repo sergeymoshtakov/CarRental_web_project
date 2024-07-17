@@ -1,26 +1,43 @@
 ﻿import React, { useState, useEffect } from 'react';
 
-export default function SearchCars() {
+export function SearchCars() {
     const [countries, setCountries] = useState([]);
     const [cities, setCities] = useState([]);
     const [cars, setCars] = useState([]);
     const [selectedCountry, setSelectedCountry] = useState('');
     const [selectedCity, setSelectedCity] = useState('');
+    const [rentalDate, setRentalDate] = useState('');
+    const [returnDate, setReturnDate] = useState('');
+    const [message, setMessage] = useState({ text: '', type: '' });
 
     useEffect(() => {
         async function fetchCountries() {
-            const response = await fetch('/countries');
-            const data = await response.json();
-            setCountries(data);
+            try {
+                const response = await fetch('countries');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                setCountries(data);
+            } catch (error) {
+                console.error('Failed to fetch countries:', error);
+            }
         }
         fetchCountries();
     }, []);
 
     const handleCountryChange = async (e) => {
         setSelectedCountry(e.target.value);
-        const response = await fetch(`/cities?countryId=${e.target.value}`);
-        const data = await response.json();
-        setCities(data);
+        try {
+            const response = await fetch(`cities?countryId=${e.target.value}`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            setCities(data);
+        } catch (error) {
+            console.error('Failed to fetch cities:', error);
+        }
     };
 
     const handleCityChange = (e) => {
@@ -28,9 +45,16 @@ export default function SearchCars() {
     };
 
     const handleSearch = async () => {
-        const response = await fetch(`/carRental/search?countryId=${selectedCountry}&cityId=${selectedCity}`);
-        const data = await response.json();
-        setCars(data);
+        try {
+            const response = await fetch(`carRental/search?countryId=${selectedCountry}&cityId=${selectedCity}`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const data = await response.json();
+            setCars(data);
+        } catch (error) {
+            console.error('Failed to fetch cars:', error);
+        }
     };
 
     return (
@@ -40,11 +64,24 @@ export default function SearchCars() {
                 <option value="">Select Country</option>
                 {countries.map(country => <option key={country.id} value={country.id}>{country.name}</option>)}
             </select>
+            <br />
             <select value={selectedCity} onChange={handleCityChange} disabled={!selectedCountry}>
                 <option value="">Select City</option>
                 {cities.map(city => <option key={city.id} value={city.id}>{city.name}</option>)}
             </select>
+            <br />
             <button onClick={handleSearch}>Search</button>
+            <br />
+            <label>
+                Rental Date:
+                <input type="date" value={rentalDate} onChange={(e) => setRentalDate(e.target.value)} />
+            </label>
+            <br />
+            <label>
+                Return Date:
+                <input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} />
+            </label>
+            <br />
             <ul>
                 {cars.map(car => (
                     <li key={car.id}>
@@ -53,23 +90,34 @@ export default function SearchCars() {
                     </li>
                 ))}
             </ul>
+            {message.text && (
+                <div style={{ color: message.type === 'success' ? 'green' : 'red' }}>
+                    {message.text}
+                </div>
+            )}
         </div>
     );
 
     async function rentCar(carId) {
-        const rentalDate = new Date().toISOString();
-        const returnDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(); // one week later
+        try {
+            const response = await fetch('/carRental/rent', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ carId, rentalDate, returnDate }),
+            });
 
-        const response = await fetch('/carRental/rent', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ carId, rentalDate, returnDate })
-        });
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${await response.text()}`);
+            }
 
-        if (response.ok) {
-            alert('Car rented successfully');
-        } else {
-            alert('Failed to rent car');
+            const data = await response.json();
+            setMessage({ text: 'Car rented successfully!', type: 'success' });
+            console.log('Car rented successfully:', data);
+        } catch (error) {
+            setMessage({ text: `Failed to rent car: ${error.message}`, type: 'error' });
+            console.error('Failed to rent car:', error);
         }
     }
 }

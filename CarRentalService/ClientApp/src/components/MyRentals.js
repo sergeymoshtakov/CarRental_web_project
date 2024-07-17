@@ -1,16 +1,23 @@
 ﻿import React, { useState, useEffect } from 'react';
 
-export default function MyRentals() {
+export function MyRentals() {
     const [rentals, setRentals] = useState([]);
 
     useEffect(() => {
         async function fetchRentals() {
-            const response = await fetch('/carRental/myRentals', {
-                method: 'GET',
-                credentials: 'include'
-            });
-            const data = await response.json();
-            setRentals(data);
+            try {
+                const response = await fetch('/carRental/myRentals', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                setRentals(data);
+            } catch (error) {
+                console.error('Failed to fetch rentals:', error);
+            }
         }
         fetchRentals();
     }, []);

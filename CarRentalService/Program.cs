@@ -22,6 +22,17 @@ builder.Services.AddAuthentication("Cookies")
 
 builder.Services.AddScoped<IUserSessionService, UserSessionService>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -41,6 +52,8 @@ app.MapControllerRoute(
     pattern: "{controller}/{action=Index}/{id?}");
 
 app.MapFallbackToFile("index.html");
+
+app.UseCors("AllowAll");
 
 app.Run();
 

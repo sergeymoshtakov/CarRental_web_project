@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CarRentalService.Data;
 using CarRentalService.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-// For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace CarRentalService.Controllers
 {
+    [ApiController]
+    [Route("[controller]")]
     public class CarRentalController : ControllerBase
     {
         private readonly ApplicationDBContext _context;
@@ -34,30 +32,58 @@ namespace CarRentalService.Controllers
         }
 
         [HttpPost("rent")]
-        [Authorize]
-        public async Task<IActionResult> RentCar(Guid carId, DateTime rentalDate, DateTime returnDate)
+        public async Task<IActionResult> RentCar([FromBody] RentCarRequest request)
         {
-            var userId = Guid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")?.Value);
+            if (!Request.Cookies.ContainsKey("userId"))
+            {
+                return Unauthorized("User ID not found in cookies");
+            }
+
+            var userId = Guid.Parse(Request.Cookies["userId"]);
+
+            var car = await _context.Cars.FindAsync(request.CarId);
+            if (car == null)
+            {
+                return NotFound("Car not found.");
+            }
+
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
             var carRental = new CarRental
             {
                 Id = Guid.NewGuid(),
                 UserId = userId,
-                CarId = carId,
-                RentalDate = rentalDate,
-                ReturnDate = returnDate
+                CarId = request.CarId,
+                RentalDate = request.RentalDate,
+                ReturnDate = request.ReturnDate
             };
 
-            _context.CarRentals.Add(carRental);
-            await _context.SaveChangesAsync();
-
-            return Ok(carRental);
+            try
+            {
+                _context.CarRentals.Add(carRental);
+                await _context.SaveChangesAsync();
+                return Ok(carRental);
+            }
+            catch (DbUpdateException ex)
+            {
+                Console.Error.WriteLine(ex.InnerException?.Message ?? ex.Message);
+                return StatusCode(500, "Internal server error while saving the rental.");
+            }
         }
 
         [HttpGet("myRentals")]
-        [Authorize]
         public async Task<IActionResult> GetMyRentals()
         {
-            var userId = Guid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")?.Value);
+            if (!Request.Cookies.ContainsKey("userId"))
+            {
+                return Unauthorized("User ID not found in cookies");
+            }
+
+            var userId = Guid.Parse(Request.Cookies["userId"]);
             var rentals = await _context.CarRentals
                 .Where(r => r.UserId == userId)
                 .Include(r => r.Car)
@@ -68,5 +94,11 @@ namespace CarRentalService.Controllers
             return Ok(rentals);
         }
     }
-}
 
+    public class RentCarRequest
+    {
+        public Guid CarId { get; set; }
+        public DateTime RentalDate { get; set; }
+        public DateTime ReturnDate { get; set; }
+    }
+}

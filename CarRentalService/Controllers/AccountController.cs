@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CarRentalService.Data;
 using CarRentalService.Models;
 using CarRentalService.Services;
 using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using Microsoft.AspNetCore.Http;
 
 namespace CarRentalService.Controllers
 {
@@ -58,12 +56,11 @@ namespace CarRentalService.Controllers
             var session = new UserSession { UserId = user.UserId, IsAuthenticated = true };
             _userSessionService.SetUserSession(session);
 
-            // Устанавливаем куку с UserId
             Response.Cookies.Append("userId", user.UserId.ToString(), new CookieOptions
             {
                 HttpOnly = true,
-                SameSite = SameSiteMode.None, // Настройте по необходимости
-                Secure = true // Настройте по необходимости
+                SameSite = SameSiteMode.None,
+                Secure = true
             });
 
             return Ok();
@@ -77,7 +74,6 @@ namespace CarRentalService.Controllers
                 var userId = Guid.Parse(HttpContext.Request.Cookies["userId"]);
                 _userSessionService.ClearUserSession(userId);
 
-                // Удаляем куку
                 Response.Cookies.Delete("userId");
             }
 
@@ -92,14 +88,7 @@ namespace CarRentalService.Controllers
                 var userId = Guid.Parse(HttpContext.Request.Cookies["userId"]);
                 var session = _userSessionService.GetUserSession(userId);
 
-                if (session != null && session.IsAuthenticated)
-                {
-                    return Ok(true);
-                }
-                else
-                {
-                    return Ok(false);
-                }
+                return Ok(session != null && session.IsAuthenticated);
             }
             catch (Exception ex)
             {

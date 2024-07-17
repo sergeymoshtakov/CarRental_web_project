@@ -17,7 +17,7 @@ code {
   border-color: #1861ac;
 }
 
-input{
+input, button, select {
     margin-top: 10px;
     margin-bottom: 10px;
 }
