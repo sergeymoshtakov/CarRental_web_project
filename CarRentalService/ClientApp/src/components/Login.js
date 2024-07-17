@@ -21,6 +21,7 @@ export function Login() {
 
         if (response.ok) {
             navigate('/');
+            window.location.reload();
         } else {
             const errorMessage = await response.text();
             setError(`Failed to login: Wrong credentials`);

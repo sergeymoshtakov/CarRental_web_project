@@ -6,28 +6,63 @@ export function Register() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [phone, setPhone] = useState('');
-    const [role, setRole] = useState('');
+    const [role, setRole] = useState('user'); // Устанавливаем роль по умолчанию
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
+    const validateEmail = (email) => {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(String(email).toLowerCase());
+    };
+
     const handleRegister = async () => {
         setError('');
+
+        // Валидация
+        if (!name) {
+            setError('Name is required');
+            return;
+        }
+        if (!email) {
+            setError('Email is required');
+            return;
+        }
+        if (!validateEmail(email)) {
+            setError('Invalid email format');
+            return;
+        }
+        if (!password) {
+            setError('Password is required');
+            return;
+        }
+        if (password.length < 6) {
+            setError('Password must be at least 6 characters long');
+            return;
+        }
+        if (!phone) {
+            setError('Phone number is required');
+            return;
+        }
+
         const user = { name, email, password, phone, role };
-        setRole("user");
 
-        const response = await fetch('/account/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(user),
-        });
+        try {
+            const response = await fetch('/account/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(user),
+            });
 
-        if (response.ok) {
-            navigate('/login');
-        } else {
-            const errorMessage = await response.text();
-            setError(`Failed to register: ${errorMessage}`);
+            if (response.ok) {
+                navigate('/login');
+            } else {
+                const errorMessage = await response.text();
+                setError(`Failed to register: ${errorMessage}`);
+            }
+        } catch (error) {
+            setError(`Failed to register: ${error.message}`);
         }
     };
 
@@ -65,7 +100,7 @@ export function Register() {
             <button onClick={handleRegister}>Register</button>
             {error && <p style={{ color: 'red' }}>{error}</p>}
             <p>
-                ALready have an account? <a href="/login">Log in</a>
+                Already have an account? <a href="/login">Log in</a>
             </p>
         </div>
     );

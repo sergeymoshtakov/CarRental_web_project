@@ -57,6 +57,26 @@ export function SearchCars() {
         }
     };
 
+    const validateDates = () => {
+        const today = new Date();
+
+        const rental = new Date(rentalDate);
+
+        const returnD = new Date(returnDate);
+
+        if (rental < today) {
+            setMessage({ text: 'Rental date cannot be in the past.', type: 'error' });
+            return false;
+        }
+
+        if (returnD < rental) {
+            setMessage({ text: 'Return date cannot be earlier than rental date.', type: 'error' });
+            return false;
+        }
+
+        return true;
+    };
+
     return (
         <div>
             <h1>Search Cars</h1>
@@ -99,6 +119,10 @@ export function SearchCars() {
     );
 
     async function rentCar(carId) {
+        if (!validateDates()) {
+            return;
+        }
+
         try {
             const response = await fetch('/carRental/rent', {
                 method: 'POST',
@@ -114,10 +138,8 @@ export function SearchCars() {
 
             const data = await response.json();
             setMessage({ text: 'Car rented successfully!', type: 'success' });
-            console.log('Car rented successfully:', data);
         } catch (error) {
             setMessage({ text: `Failed to rent car: ${error.message}`, type: 'error' });
-            console.error('Failed to rent car:', error);
         }
     }
 }

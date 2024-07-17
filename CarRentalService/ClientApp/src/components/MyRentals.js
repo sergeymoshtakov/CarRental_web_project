@@ -22,17 +22,39 @@ export function MyRentals() {
         fetchRentals();
     }, []);
 
+    const calculateRentalPrice = (rentalDate, returnDate, pricePerDay) => {
+        const startDate = new Date(rentalDate);
+        const endDate = new Date(returnDate);
+        const timeDiff = endDate - startDate;
+        const daysRented = Math.ceil(timeDiff / (1000 * 3600 * 24)) || 1; 
+        return daysRented * pricePerDay;
+    };
+
     return (
         <div>
             <h1>My Rentals</h1>
-            <ul>
-                {rentals.map(rental => (
-                    <li key={rental.id}>
-                        {rental.car.make} {rental.car.model} - {rental.car.city.name}, {rental.car.city.country.name}
-                        (Rented from {new Date(rental.rentalDate).toLocaleDateString()} to {new Date(rental.returnDate).toLocaleDateString()})
-                    </li>
-                ))}
-            </ul>
+            <table className="table table-striped" aria-labelledby="tableLabel">
+                <thead>
+                    <tr>
+                        <th>Car</th>
+                        <th>Location</th>
+                        <th>Rental Date</th>
+                        <th>Return Date</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {rentals.map(rental => (
+                        <tr key={rental.id}>
+                            <td>{rental.car.make} {rental.car.model}</td>
+                            <td>{rental.car.city.name}, {rental.car.city.country.name}</td>
+                            <td>{new Date(rental.rentalDate).toLocaleDateString()}</td>
+                            <td>{new Date(rental.returnDate).toLocaleDateString()}</td>
+                            <td>${calculateRentalPrice(rental.rentalDate, rental.returnDate, rental.car.pricePerDay).toFixed(2)}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
     );
 }

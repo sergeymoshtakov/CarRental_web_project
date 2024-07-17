@@ -53,6 +53,16 @@ namespace CarRentalService.Controllers
                 return NotFound("User not found.");
             }
 
+            if (request.RentalDate < DateTime.Now)
+            {
+                return BadRequest("Rental date cannot be in the past.");
+            }
+
+            if (request.ReturnDate <= request.RentalDate)
+            {
+                return BadRequest("Return date must be after the rental date.");
+            }
+
             var carRental = new CarRental
             {
                 Id = Guid.NewGuid(),
