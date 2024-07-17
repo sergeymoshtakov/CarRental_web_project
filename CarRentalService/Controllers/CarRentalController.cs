@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using CarRentalService.Data;
+using CarRentalService.Helpers;
 using CarRentalService.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace CarRentalService.Controllers
 {
@@ -13,10 +17,12 @@ namespace CarRentalService.Controllers
     public class CarRentalController : ControllerBase
     {
         private readonly ApplicationDBContext _context;
+        private readonly EmailSettings _emailSettings;
 
-        public CarRentalController(ApplicationDBContext context)
+        public CarRentalController(ApplicationDBContext context, IOptions<EmailSettings> emailSettings)
         {
             _context = context;
+            _emailSettings = emailSettings.Value;
         }
 
         [HttpGet("search")]
@@ -63,6 +69,8 @@ namespace CarRentalService.Controllers
                 return BadRequest("Return date must be after the rental date.");
             }
 
+            decimal totalPrice = CalculateRentalPrice(request.RentalDate, request.ReturnDate, car.PricePerDay);
+
             var carRental = new CarRental
             {
                 Id = Guid.NewGuid(),
@@ -76,6 +84,33 @@ namespace CarRentalService.Controllers
             {
                 _context.CarRentals.Add(carRental);
                 await _context.SaveChangesAsync();
+
+                var city = await _context.Cities
+                .Where(c => c.Id == car.CityId)
+                .FirstOrDefaultAsync();
+
+                var country = await _context.Countries
+                .Where(c => c.Id == city.CountryId)
+                .FirstOrDefaultAsync();
+
+                string htmlBody = $@"
+            <html>
+            <body>
+                <p>Dear {user.Name},</p>
+                <p>You have successfully rented a car.</p>
+                <p><strong>Rental Details:</strong></p>
+                <ul>
+                    <li><strong>Car:</strong> {car.Make} {car.Model}</li>
+                    <li><strong>Place:</strong> {city.Name}, {country.Name}</li>
+                    <li><strong>Rental Date:</strong> {request.RentalDate.ToString("dd.MM.yyyy")}</li>
+                    <li><strong>Return Date:</strong> {request.ReturnDate.ToString("dd.MM.yyyy")}</li>
+                    <li><strong>Total Price:</strong> ${totalPrice.ToString("0.00")}</li>
+                </ul>
+            </body>
+            </html>";
+
+                await SendEmail(user.Email, "Car Rental Confirmation", htmlBody);
+
                 return Ok(carRental);
             }
             catch (DbUpdateException ex)
@@ -103,6 +138,42 @@ namespace CarRentalService.Controllers
 
             return Ok(rentals);
         }
+
+        private async Task SendEmail(string toEmail, string subject, string body)
+        {
+            try
+            {
+                MailAddress from = new MailAddress(_emailSettings.FromAddress, _emailSettings.FromName);
+                MailAddress to = new MailAddress(toEmail);
+                MailMessage m = new MailMessage(from, to)
+                {
+                    Subject = subject,
+                    Body = body,
+                    IsBodyHtml = true
+                };
+                SmtpClient smtp = new SmtpClient(_emailSettings.SmtpServer, _emailSettings.SmtpPort)
+                {
+                    Credentials = new NetworkCredential(_emailSettings.SmtpUsername, _emailSettings.SmtpPassword),
+                    EnableSsl = true
+                };
+                await smtp.SendMailAsync(m);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Failed to send email. Error message: {ex.Message}");
+            }
+        }
+
+        private decimal CalculateRentalPrice(DateTime rentalDate, DateTime returnDate, decimal pricePerDay)
+        {
+            TimeSpan rentalPeriod = returnDate.Date - rentalDate.Date;
+            int rentalDays = rentalPeriod.Days;
+
+            decimal totalPrice = rentalDays * pricePerDay;
+
+            return totalPrice;
+        }
+
     }
 
     public class RentCarRequest

@@ -1,4 +1,5 @@
 ﻿using CarRentalService.Data;
+using CarRentalService.Helpers;
 using CarRentalService.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +22,9 @@ builder.Services.AddAuthentication("Cookies")
     });
 
 builder.Services.AddScoped<IUserSessionService, UserSessionService>();
+
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+
 
 builder.Services.AddCors(options =>
 {
