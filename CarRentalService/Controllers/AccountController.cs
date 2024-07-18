@@ -6,6 +6,7 @@ using CarRentalService.Models;
 using CarRentalService.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace CarRentalService.Controllers
 {
@@ -89,6 +90,30 @@ namespace CarRentalService.Controllers
                 var session = _userSessionService.GetUserSession(userId);
 
                 return Ok(session != null && session.IsAuthenticated);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("isAdmin")]
+        public IActionResult IsAdmin()
+        {
+            try
+            {
+                var userId = Guid.Parse(HttpContext.Request.Cookies["userId"]);
+                var session = _userSessionService.GetUserSession(userId);
+                var user = _context.Users.Where(u => u.UserId == userId).FirstOrDefault();
+
+                if (user != null && user.Role == "admin")
+                {
+                    return Ok(session != null && session.IsAuthenticated);
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden, "User is not an admin");
+                }
             }
             catch (Exception ex)
             {
