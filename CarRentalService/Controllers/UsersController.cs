@@ -6,8 +6,6 @@ using CarRentalService.Data;
 using CarRentalService.Models;
 using Microsoft.AspNetCore.Mvc;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace CarRentalService.Controllers
 {
     [ApiController]
@@ -26,6 +24,17 @@ namespace CarRentalService.Controllers
             return _context.Users.ToList();
         }
 
+        [HttpGet("{id}")]
+        public IActionResult Get(Guid id)
+        {
+            var user = _context.Users.FirstOrDefault(x => x.UserId == id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return Ok(user);
+        }
+
         [HttpPost]
         public IActionResult Post(User user)
         {
@@ -36,10 +45,28 @@ namespace CarRentalService.Controllers
             return Ok(user);
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult Delete(string id)
+        [HttpPut("{id}")]
+        public IActionResult Put(Guid id, [FromBody] User user)
         {
-            User user = _context.Users.FirstOrDefault(x => x.UserId == new Guid(id));
+            var existingUser = _context.Users.FirstOrDefault(x => x.UserId == id);
+            if (existingUser == null)
+            {
+                return NotFound();
+            }
+            existingUser.Name = user.Name;
+            existingUser.Email = user.Email;
+            existingUser.Phone = user.Phone;
+            existingUser.Role = user.Role;
+            existingUser.Password = user.Password;
+
+            _context.SaveChanges();
+            return Ok(existingUser);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(Guid id)
+        {
+            var user = _context.Users.FirstOrDefault(x => x.UserId == id);
             if (user == null)
             {
                 return NotFound();
@@ -50,4 +77,3 @@ namespace CarRentalService.Controllers
         }
     }
 }
-

@@ -10,6 +10,7 @@ const context = [
     "/cities",
     "/countries",
     "/carRental",
+    "/cars",
 ];
 
 const onError = (err, req, resp, target) => {

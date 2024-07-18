@@ -73,9 +73,17 @@ export class NavMenu extends Component {
                             {this.state.isLoggedIn ? (
                                 <>
                                     {this.state.isAdmin ? (
-                                        <NavItem>
-                                            <NavLink tag={Link} className="text-dark" to="/users">Users</NavLink>
-                                        </NavItem>
+                                        <>
+                                            <NavItem>
+                                                <NavLink tag={Link} className="text-dark" to="/users">Users</NavLink>
+                                            </NavItem>
+                                            <NavItem>
+                                                <NavLink tag={Link} className="text-dark" to="/cities">Cities</NavLink>
+                                            </NavItem>
+                                            <NavItem>
+                                                <NavLink tag={Link} className="text-dark" to="/countries">Countries</NavLink>
+                                            </NavItem>
+                                        </>
                                     ) : (
                                         <>
                                             <NavItem>

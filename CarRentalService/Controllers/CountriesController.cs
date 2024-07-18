@@ -7,8 +7,6 @@ using CarRentalService.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-// For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace CarRentalService.Controllers
 {
     [ApiController]
@@ -29,6 +27,17 @@ namespace CarRentalService.Controllers
             return Ok(countries);
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetCountry(Guid id)
+        {
+            var country = await _context.Countries.FindAsync(id);
+            if (country == null)
+            {
+                return NotFound();
+            }
+            return Ok(country);
+        }
+
         [HttpPost]
         public IActionResult Post(Country country)
         {
@@ -38,10 +47,24 @@ namespace CarRentalService.Controllers
             return Ok(country);
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult Delete(string id)
+        [HttpPut("{id}")]
+        public IActionResult Put(Guid id, [FromBody] Country country)
         {
-            Country country = _context.Countries.FirstOrDefault(x => x.Id == new Guid(id));
+            var existingCountry = _context.Countries.FirstOrDefault(x => x.Id == id);
+            if (existingCountry == null)
+            {
+                return NotFound();
+            }
+            existingCountry.Name = country.Name;
+
+            _context.SaveChanges();
+            return Ok(existingCountry);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(Guid id)
+        {
+            var country = _context.Countries.FirstOrDefault(x => x.Id == id);
             if (country == null)
             {
                 return NotFound();
@@ -52,4 +75,3 @@ namespace CarRentalService.Controllers
         }
     }
 }
-

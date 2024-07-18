@@ -4,6 +4,8 @@ import { Register } from "./components/Register";
 import { Login } from "./components/Login";
 import { SearchCars } from "./components/SearchCars";
 import { MyRentals } from "./components/MyRentals";
+import { Countries } from "./components/Countries";
+import { Cities } from "./components/Cities";
 
 const AppRoutes = [
   {
@@ -29,6 +31,14 @@ const AppRoutes = [
     {
      path: '/my-rentals',
      element: <MyRentals />
+    },
+    {
+        path: '/cities',
+        element: <Cities />
+    },
+    {
+        path: '/countries',
+        element: <Countries />
     },
 ];
 
