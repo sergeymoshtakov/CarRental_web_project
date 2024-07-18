@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CarRentalService.Data;
+using CarRentalService.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,6 +29,34 @@ namespace CarRentalService.Controllers
                 .Where(c => c.CountryId == countryId)
                 .ToListAsync();
             return Ok(cities);
+        }
+
+        [HttpGet]
+        public IEnumerable<City> Get()
+        {
+            return _context.Cities.ToList();
+        }
+
+        [HttpPost]
+        public IActionResult Post(City city)
+        {
+            city.Id = Guid.NewGuid();
+            _context.Cities.Add(city);
+            _context.SaveChanges();
+            return Ok(city);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(string id)
+        {
+            City city = _context.Cities.FirstOrDefault(x => x.Id == new Guid(id));
+            if (city == null)
+            {
+                return NotFound();
+            }
+            _context.Cities.Remove(city);
+            _context.SaveChanges();
+            return Ok(city);
         }
     }
 }

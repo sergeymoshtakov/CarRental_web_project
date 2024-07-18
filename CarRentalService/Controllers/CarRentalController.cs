@@ -174,6 +174,33 @@ namespace CarRentalService.Controllers
             return totalPrice;
         }
 
+        [HttpGet]
+        public IEnumerable<CarRental> Get()
+        {
+            return _context.CarRentals.ToList();
+        }
+
+        [HttpPost]
+        public IActionResult Post(CarRental carRental)
+        {
+            carRental.Id = Guid.NewGuid();
+            _context.CarRentals.Add(carRental);
+            _context.SaveChanges();
+            return Ok(carRental);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(string id)
+        {
+            CarRental carRental = _context.CarRentals.FirstOrDefault(x => x.Id == new Guid(id));
+            if (carRental == null)
+            {
+                return NotFound();
+            }
+            _context.CarRentals.Remove(carRental);
+            _context.SaveChanges();
+            return Ok(carRental);
+        }
     }
 
     public class RentCarRequest

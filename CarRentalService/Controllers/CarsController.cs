@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using CarRentalService.Data;
 using CarRentalService.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -13,42 +12,40 @@ namespace CarRentalService.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class CountriesController : ControllerBase
+    public class CarsController : Controller
     {
         private readonly ApplicationDBContext _context;
-
-        public CountriesController(ApplicationDBContext context)
+        public CarsController(ApplicationDBContext context)
         {
             _context = context;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCountries()
+        public IEnumerable<Car> Get()
         {
-            var countries = await _context.Countries.ToListAsync();
-            return Ok(countries);
+            return _context.Cars.ToList();
         }
 
         [HttpPost]
-        public IActionResult Post(Country country)
+        public IActionResult Post(Car car)
         {
-            country.Id = Guid.NewGuid();
-            _context.Countries.Add(country);
+            car.Id = Guid.NewGuid();
+            _context.Cars.Add(car);
             _context.SaveChanges();
-            return Ok(country);
+            return Ok(car);
         }
 
         [HttpDelete("{id}")]
         public IActionResult Delete(string id)
         {
-            Country country = _context.Countries.FirstOrDefault(x => x.Id == new Guid(id));
-            if (country == null)
+            Car car = _context.Cars.FirstOrDefault(x => x.Id == new Guid(id));
+            if (car == null)
             {
                 return NotFound();
             }
-            _context.Countries.Remove(country);
+            _context.Cars.Remove(car);
             _context.SaveChanges();
-            return Ok(country);
+            return Ok(car);
         }
     }
 }
