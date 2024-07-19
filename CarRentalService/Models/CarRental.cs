@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CarRentalService.Models
 {
-	public class CarRental
-	{
+    public class CarRental
+    {
         [Key]
         public Guid Id { get; set; }
         [Required]
@@ -17,6 +17,7 @@ namespace CarRentalService.Models
         public DateTime RentalDate { get; set; }
         [Required]
         public DateTime ReturnDate { get; set; }
+        [Required]
+        public string RentalType { get; set; }  // Changed from enum to string
     }
 }
-

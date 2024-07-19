@@ -3,6 +3,7 @@ using System;
 using CarRentalService.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CarRentalService.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20240719105301_AddRentalTypeToCarRental")]
+    partial class AddRentalTypeToCarRental
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -65,9 +68,8 @@ namespace CarRentalService.Migrations
                     b.Property<DateTime>("RentalDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<string>("RentalType")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<int>("RentalType")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("ReturnDate")
                         .HasColumnType("datetime(6)");

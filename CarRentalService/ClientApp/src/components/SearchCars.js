@@ -7,7 +7,10 @@ export function SearchCars() {
     const [selectedCountry, setSelectedCountry] = useState('');
     const [selectedCity, setSelectedCity] = useState('');
     const [rentalDate, setRentalDate] = useState('');
+    const [rentalTime, setRentalTime] = useState('');
     const [returnDate, setReturnDate] = useState('');
+    const [returnTime, setReturnTime] = useState('');
+    const [rentalType, setRentalType] = useState('Daily');
     const [message, setMessage] = useState({ text: '', type: '' });
 
     useEffect(() => {
@@ -59,23 +62,51 @@ export function SearchCars() {
 
     const validateDates = () => {
         const today = new Date();
+        const rentalDateTime = new Date(`${rentalDate}T${rentalTime}`);
+        const returnDateTime = new Date(`${returnDate}T${returnTime}`);
 
-        const rental = new Date(rentalDate);
-
-        const returnD = new Date(returnDate);
-
-        if (rental < today) {
+        if (rentalDateTime < today) {
             setMessage({ text: 'Rental date cannot be in the past.', type: 'error' });
             return false;
         }
 
-        if (returnD < rental) {
-            setMessage({ text: 'Return date cannot be earlier than rental date.', type: 'error' });
+        if (returnDateTime <= rentalDateTime) {
+            setMessage({ text: 'Return date must be after the rental date.', type: 'error' });
             return false;
         }
 
         return true;
     };
+
+    async function rentCar(carId) {
+        if (!validateDates()) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/carRental/rent', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    carId,
+                    rentalDate: `${rentalDate}T${rentalTime}`,
+                    returnDate: `${returnDate}T${returnTime}`,
+                    rentalType
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${await response.text()}`);
+            }
+
+            const data = await response.json();
+            setMessage({ text: 'Car rented successfully!', type: 'success' });
+        } catch (error) {
+            setMessage({ text: `Failed to rent car: ${error.message}`, type: 'error' });
+        }
+    }
 
     return (
         <div>
@@ -96,10 +127,27 @@ export function SearchCars() {
                 Rental Date:
                 <input type="date" value={rentalDate} onChange={(e) => setRentalDate(e.target.value)} />
             </label>
+            <label>
+                Rental Time:
+                <input type="time" value={rentalTime} onChange={(e) => setRentalTime(e.target.value)} />
+            </label>
             <br />
             <label>
                 Return Date:
                 <input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} />
+            </label>
+            <label>
+                Return Time:
+                <input type="time" value={returnTime} onChange={(e) => setReturnTime(e.target.value)} />
+            </label>
+            <br />
+            <label>
+                Rental Type:
+                <select value={rentalType} onChange={(e) => setRentalType(e.target.value)}>
+                    <option value="Daily">Daily</option>
+                    <option value="Hourly">Hourly</option>
+                    <option value="ByMinute">By Minute</option>
+                </select>
             </label>
             <br />
             <ul>
@@ -117,29 +165,4 @@ export function SearchCars() {
             )}
         </div>
     );
-
-    async function rentCar(carId) {
-        if (!validateDates()) {
-            return;
-        }
-
-        try {
-            const response = await fetch('/carRental/rent', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ carId, rentalDate, returnDate }),
-            });
-
-            if (!response.ok) {
-                throw new Error(`Network response was not ok: ${await response.text()}`);
-            }
-
-            const data = await response.json();
-            setMessage({ text: 'Car rented successfully!', type: 'success' });
-        } catch (error) {
-            setMessage({ text: `Failed to rent car: ${error.message}`, type: 'error' });
-        }
-    }
 }

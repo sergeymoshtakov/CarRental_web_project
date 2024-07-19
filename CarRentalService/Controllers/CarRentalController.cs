@@ -69,7 +69,7 @@ namespace CarRentalService.Controllers
                 return BadRequest("Return date must be after the rental date.");
             }
 
-            decimal totalPrice = CalculateRentalPrice(request.RentalDate, request.ReturnDate, car.PricePerDay);
+            decimal totalPrice = CalculateRentalPrice(request.RentalDate, request.ReturnDate, car.PricePerDay, request.RentalType);
 
             var carRental = new CarRental
             {
@@ -77,7 +77,8 @@ namespace CarRentalService.Controllers
                 UserId = userId,
                 CarId = request.CarId,
                 RentalDate = request.RentalDate,
-                ReturnDate = request.ReturnDate
+                ReturnDate = request.ReturnDate,
+                RentalType = request.RentalType
             };
 
             try
@@ -86,28 +87,28 @@ namespace CarRentalService.Controllers
                 await _context.SaveChangesAsync();
 
                 var city = await _context.Cities
-                .Where(c => c.Id == car.CityId)
-                .FirstOrDefaultAsync();
+                    .Where(c => c.Id == car.CityId)
+                    .FirstOrDefaultAsync();
 
                 var country = await _context.Countries
-                .Where(c => c.Id == city.CountryId)
-                .FirstOrDefaultAsync();
+                    .Where(c => c.Id == city.CountryId)
+                    .FirstOrDefaultAsync();
 
                 string htmlBody = $@"
-            <html>
-            <body>
-                <p>Dear {user.Name},</p>
-                <p>You have successfully rented a car.</p>
-                <p><strong>Rental Details:</strong></p>
-                <ul>
-                    <li><strong>Car:</strong> {car.Make} {car.Model}</li>
-                    <li><strong>Place:</strong> {city.Name}, {country.Name}</li>
-                    <li><strong>Rental Date:</strong> {request.RentalDate.ToString("dd.MM.yyyy")}</li>
-                    <li><strong>Return Date:</strong> {request.ReturnDate.ToString("dd.MM.yyyy")}</li>
-                    <li><strong>Total Price:</strong> ${totalPrice.ToString("0.00")}</li>
-                </ul>
-            </body>
-            </html>";
+        <html>
+        <body>
+            <p>Dear {user.Name},</p>
+            <p>You have successfully rented a car.</p>
+            <p><strong>Rental Details:</strong></p>
+            <ul>
+                <li><strong>Car:</strong> {car.Make} {car.Model}</li>
+                <li><strong>Place:</strong> {city.Name}, {country.Name}</li>
+                <li><strong>Rental Date:</strong> {request.RentalDate:dd.MM.yyyy HH:mm}</li>
+                <li><strong>Return Date:</strong> {request.ReturnDate:dd.MM.yyyy HH:mm}</li>
+                <li><strong>Total Price:</strong> ${totalPrice:0.00}</li>
+            </ul>
+        </body>
+        </html>";
 
                 await SendEmail(user.Email, "Car Rental Confirmation", htmlBody);
 
@@ -118,6 +119,32 @@ namespace CarRentalService.Controllers
                 Console.Error.WriteLine(ex.InnerException?.Message ?? ex.Message);
                 return StatusCode(500, "Internal server error while saving the rental.");
             }
+        }
+
+        private decimal CalculateRentalPrice(DateTime rentalDate, DateTime returnDate, decimal pricePerDay, string rentalType)
+        {
+            TimeSpan rentalPeriod = returnDate - rentalDate;
+            decimal totalPrice = 0;
+
+            switch (rentalType)
+            {
+                case "Daily":
+                    int rentalDays = rentalPeriod.Days;
+                    totalPrice = rentalDays * pricePerDay;
+                    break;
+                case "Hourly":
+                    decimal pricePerHour = pricePerDay / 24;
+                    totalPrice = (decimal)rentalPeriod.TotalHours * pricePerHour;
+                    break;
+                case "ByMinute":
+                    decimal pricePerMinute = pricePerDay / (24 * 60);
+                    totalPrice = (decimal)rentalPeriod.TotalMinutes * pricePerMinute;
+                    break;
+                default:
+                    throw new ArgumentException("Invalid rental type");
+            }
+
+            return totalPrice;
         }
 
         [HttpGet("myRentals")]
@@ -164,15 +191,6 @@ namespace CarRentalService.Controllers
             }
         }
 
-        private decimal CalculateRentalPrice(DateTime rentalDate, DateTime returnDate, decimal pricePerDay)
-        {
-            TimeSpan rentalPeriod = returnDate.Date - rentalDate.Date;
-            int rentalDays = rentalPeriod.Days;
-
-            decimal totalPrice = rentalDays * pricePerDay;
-
-            return totalPrice;
-        }
 
         [HttpGet]
         public IEnumerable<CarRental> Get()
@@ -208,5 +226,7 @@ namespace CarRentalService.Controllers
         public Guid CarId { get; set; }
         public DateTime RentalDate { get; set; }
         public DateTime ReturnDate { get; set; }
+        public string RentalType { get; set; } 
     }
+
 }
