@@ -191,7 +191,6 @@ namespace CarRentalService.Controllers
             }
         }
 
-
         [HttpGet]
         public IEnumerable<CarRental> Get()
         {
@@ -218,6 +217,64 @@ namespace CarRentalService.Controllers
             _context.CarRentals.Remove(carRental);
             _context.SaveChanges();
             return Ok(carRental);
+        }
+
+        [HttpDelete("cancel/{id}")]
+        public async Task<IActionResult> CancelRental(Guid id)
+        {
+            if (!Request.Cookies.ContainsKey("userId"))
+            {
+                return Unauthorized("User ID not found in cookies");
+            }
+
+            var userId = Guid.Parse(Request.Cookies["userId"]);
+            var rental = await _context.CarRentals
+                .Include(r => r.Car)
+                .ThenInclude(car => car.City)
+                .ThenInclude(city => city.Country)
+                .FirstOrDefaultAsync(r => r.Id == id && r.UserId == userId);
+
+            if (rental == null)
+            {
+                return NotFound("Rental not found or you do not have permission to cancel it.");
+            }
+
+            _context.CarRentals.Remove(rental);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null)
+                {
+                    return NotFound("User not found.");
+                }
+
+                string htmlBody = $@"
+            <html>
+            <body>
+                <p>Dear {user.Name},</p>
+                <p>Your car rental has been successfully cancelled.</p>
+                <p><strong>Rental Details:</strong></p>
+                <ul>
+                    <li><strong>Car:</strong> {rental.Car.Make} {rental.Car.Model}</li>
+                    <li><strong>Place:</strong> {rental.Car.City.Name}, {rental.Car.City.Country.Name}</li>
+                    <li><strong>Rental Date:</strong> {rental.RentalDate:dd.MM.yyyy HH:mm}</li>
+                    <li><strong>Return Date:</strong> {rental.ReturnDate:dd.MM.yyyy HH:mm}</li>
+                </ul>
+            </body>
+            </html>";
+
+                await SendEmail(user.Email, "Car Rental Cancellation", htmlBody);
+
+                return Ok("Rental cancelled successfully.");
+            }
+            catch (DbUpdateException ex)
+            {
+                Console.Error.WriteLine(ex.InnerException?.Message ?? ex.Message);
+                return StatusCode(500, "Internal server error while canceling the rental.");
+            }
         }
     }
 
