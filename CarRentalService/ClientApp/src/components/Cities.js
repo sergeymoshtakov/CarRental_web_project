@@ -7,7 +7,7 @@ export class Cities extends Component {
             cities: [],
             countries: [],
             loading: true,
-            city: { name: '', countryId: '' }, // Ensure countryId is initialized
+            city: { name: '', countryId: '' },
             isEditing: false,
             cityId: null,
             error: null
@@ -190,5 +190,3 @@ export class Cities extends Component {
         }
     }
 }
-
-export default Cities;
