@@ -148,7 +148,7 @@ namespace CarRentalService.Controllers
         }
 
         [HttpGet("myRentals")]
-        public async Task<IActionResult> GetMyRentals()
+        public async Task<IActionResult> GetMyRentals([FromQuery] int page = 1, [FromQuery] int size = 10)
         {
             if (!Request.Cookies.ContainsKey("userId"))
             {
@@ -156,14 +156,26 @@ namespace CarRentalService.Controllers
             }
 
             var userId = Guid.Parse(Request.Cookies["userId"]);
+            var totalRentals = await _context.CarRentals.CountAsync(r => r.UserId == userId);
+            var totalPages = (int)Math.Ceiling((double)totalRentals / size);
+
             var rentals = await _context.CarRentals
                 .Where(r => r.UserId == userId)
                 .Include(r => r.Car)
                 .ThenInclude(car => car.City)
                 .ThenInclude(city => city.Country)
+                .OrderBy(r => r.RentalDate)
+                .Skip((page - 1) * size)
+                .Take(size)
                 .ToListAsync();
 
-            return Ok(rentals);
+            var result = new
+            {
+                items = rentals,
+                totalPages
+            };
+
+            return Ok(result);
         }
 
         private async Task SendEmail(string toEmail, string subject, string body)

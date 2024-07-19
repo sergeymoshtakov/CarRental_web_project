@@ -1,4 +1,5 @@
 ﻿import React, { Component } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css'; // Импорт стилей Bootstrap
 
 export class Cities extends Component {
     constructor(props) {
@@ -26,8 +27,8 @@ export class Cities extends Component {
 
     static renderCitiesTable(cities, editCity, deleteCity) {
         return (
-            <table className="table table-striped" aria-labelledby="tableLabel">
-                <thead>
+            <table className="table table-striped table-bordered">
+                <thead className="thead-dark">
                     <tr>
                         <th>Name</th>
                         <th>Country</th>
@@ -40,8 +41,8 @@ export class Cities extends Component {
                             <td>{city.name}</td>
                             <td>{city.country ? city.country.name : 'Unknown'}</td>
                             <td>
-                                <button onClick={() => editCity(city.id)}>Edit</button>
-                                <button onClick={() => deleteCity(city.id)}>Delete</button>
+                                <button className="btn btn-warning btn-sm me-2" onClick={() => editCity(city.id)}>Edit</button>
+                                <button className="btn btn-danger btn-sm" onClick={() => deleteCity(city.id)}>Delete</button>
                             </td>
                         </tr>
                     ))}
@@ -130,33 +131,46 @@ export class Cities extends Component {
         );
 
         return (
-            <div>
-                <h1 id="tableLabel">Cities</h1>
-                {error && <p style={{ color: 'red' }}>{error}</p>}
-                <form onSubmit={this.handleSubmit}>
-                    <input
-                        type="text"
-                        name="name"
-                        value={city.name}
-                        onChange={this.handleChange}
-                        placeholder="Name"
-                        required
-                    />
-                    <select
-                        name="countryId"
-                        value={city.countryId}
-                        onChange={this.handleChange}
-                        required
-                    >
-                        <option value="">Select Country</option>
-                        {countries.map(country => (
-                            <option key={country.id} value={country.id}>
-                                {country.name}
-                            </option>
-                        ))}
-                    </select>
-                    <button type="submit">Save</button>
-                </form>
+            <div className="container mt-4">
+                <h1 id="tableLabel" className="mb-4">Cities</h1>
+                {error && <div className="alert alert-danger">{error}</div>}
+                <div className="mb-4">
+                    <h2>{this.state.isEditing ? 'Edit City' : 'Add City'}</h2>
+                    <form onSubmit={this.handleSubmit}>
+                        <div className="mb-3">
+                            <label htmlFor="name" className="form-label">Name</label>
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                className="form-control"
+                                value={city.name}
+                                onChange={this.handleChange}
+                                placeholder="City Name"
+                                required
+                            />
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="countryId" className="form-label">Country</label>
+                            <select
+                                id="countryId"
+                                name="countryId"
+                                className="form-select"
+                                value={city.countryId}
+                                onChange={this.handleChange}
+                                required
+                            >
+                                <option value="">Select Country</option>
+                                {countries.map(country => (
+                                    <option key={country.id} value={country.id}>
+                                        {country.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <button type="submit" className="btn btn-primary">{this.state.isEditing ? 'Update' : 'Save'}</button>
+                    </form>
+                </div>
                 {contents}
             </div>
         );

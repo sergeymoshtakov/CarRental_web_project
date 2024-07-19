@@ -68,43 +68,43 @@ export class NavMenu extends Component {
                     <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!this.state.collapsed} navbar>
                         <ul className="navbar-nav flex-grow">
                             <NavItem>
-                                <NavLink tag={Link} className="text-dark" to="/">Home</NavLink>
+                                <NavLink tag={Link} className="menu-link" to="/">Home</NavLink>
                             </NavItem>
                             {this.state.isLoggedIn ? (
                                 <>
                                     {this.state.isAdmin ? (
                                         <>
                                             <NavItem>
-                                                <NavLink tag={Link} className="text-dark" to="/users">Users</NavLink>
+                                                <NavLink tag={Link} className="menu-link" to="/users">Users</NavLink>
                                             </NavItem>
                                             <NavItem>
-                                                <NavLink tag={Link} className="text-dark" to="/cities">Cities</NavLink>
+                                                <NavLink tag={Link} className="menu-link" to="/cities">Cities</NavLink>
                                             </NavItem>
                                             <NavItem>
-                                                <NavLink tag={Link} className="text-dark" to="/countries">Countries</NavLink>
+                                                <NavLink tag={Link} className="menu-link" to="/countries">Countries</NavLink>
                                             </NavItem>
                                         </>
                                     ) : (
                                         <>
                                             <NavItem>
-                                                <NavLink tag={Link} className="text-dark" to="/search-cars">Search Cars</NavLink>
+                                                <NavLink tag={Link} className="menu-link" to="/search-cars">Search Cars</NavLink>
                                             </NavItem>
                                             <NavItem>
-                                                <NavLink tag={Link} className="text-dark" to="/my-rentals">My Rentals</NavLink>
+                                                <NavLink tag={Link} className="menu-link" to="/my-rentals">My Rentals</NavLink>
                                             </NavItem>
                                         </>
                                     )}
                                     <NavItem>
-                                        <NavLink className="text-dark" onClick={this.logout}>Logout</NavLink>
+                                        <NavLink className="menu-link" onClick={this.logout}>Logout</NavLink>
                                     </NavItem>
                                 </>
                             ) : (
                                 <>
                                     <NavItem>
-                                        <NavLink tag={Link} className="text-dark" to="/login">Login</NavLink>
+                                        <NavLink tag={Link} className="menu-link" to="/login">Login</NavLink>
                                     </NavItem>
                                     <NavItem>
-                                        <NavLink tag={Link} className="text-dark" to="/register">Register</NavLink>
+                                        <NavLink tag={Link} className="menu-link" to="/register">Register</NavLink>
                                     </NavItem>
                                 </>
                             )}

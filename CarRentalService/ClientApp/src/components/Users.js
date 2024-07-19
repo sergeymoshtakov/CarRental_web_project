@@ -1,4 +1,5 @@
 ﻿import React, { Component } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css'; // Импорт стилей Bootstrap
 
 export class Users extends Component {
     static displayName = Users.name;
@@ -25,8 +26,8 @@ export class Users extends Component {
 
     static renderUsersTable(users, editUser, deleteUser) {
         return (
-            <table className="table table-striped" aria-labelledby="tableLabel">
-                <thead>
+            <table className="table table-striped table-bordered">
+                <thead className="thead-dark">
                     <tr>
                         <th>Name</th>
                         <th>Email</th>
@@ -43,8 +44,8 @@ export class Users extends Component {
                             <td>{user.phone}</td>
                             <td>{user.role}</td>
                             <td>
-                                <button onClick={() => editUser(user.userId)}>Edit</button>
-                                <button onClick={() => deleteUser(user.userId)}>Delete</button>
+                                <button className="btn btn-warning btn-sm me-2" onClick={() => editUser(user.userId)}>Edit</button>
+                                <button className="btn btn-danger btn-sm" onClick={() => deleteUser(user.userId)}>Delete</button>
                             </td>
                         </tr>
                     ))}
@@ -100,16 +101,36 @@ export class Users extends Component {
             : Users.renderUsersTable(this.state.users, this.editUser, this.deleteUser);
 
         return (
-            <div>
-                <h1 id="tableLabel">Users</h1>
-                <form onSubmit={this.handleSubmit}>
-                    <input type="text" name="name" value={this.state.user.name} onChange={this.handleChange} placeholder="Name" required />
-                    <input type="email" name="email" value={this.state.user.email} onChange={this.handleChange} placeholder="Email" required />
-                    <input type="password" name="password" value={this.state.user.password} onChange={this.handleChange} placeholder="Password" required />
-                    <input type="text" name="phone" value={this.state.user.phone} onChange={this.handleChange} placeholder="Phone" />
-                    <input type="text" name="role" value={this.state.user.role} onChange={this.handleChange} placeholder="Role" />
-                    <button type="submit">Save</button>
-                </form>
+            <div className="container mt-4">
+                <h1 id="tableLabel" className="mb-4">Users</h1>
+
+                <div className="mb-4">
+                    <h2>{this.state.isEditing ? 'Edit User' : 'Add User'}</h2>
+                    <form onSubmit={this.handleSubmit}>
+                        <div className="mb-3">
+                            <label htmlFor="name" className="form-label">Name</label>
+                            <input type="text" id="name" name="name" className="form-control" value={this.state.user.name} onChange={this.handleChange} placeholder="Name" required />
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="email" className="form-label">Email</label>
+                            <input type="email" id="email" name="email" className="form-control" value={this.state.user.email} onChange={this.handleChange} placeholder="Email" required />
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="password" className="form-label">Password</label>
+                            <input type="password" id="password" name="password" className="form-control" value={this.state.user.password} onChange={this.handleChange} placeholder="Password" required />
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="phone" className="form-label">Phone</label>
+                            <input type="text" id="phone" name="phone" className="form-control" value={this.state.user.phone} onChange={this.handleChange} placeholder="Phone" />
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="role" className="form-label">Role</label>
+                            <input type="text" id="role" name="role" className="form-control" value={this.state.user.role} onChange={this.handleChange} placeholder="Role" />
+                        </div>
+                        <button type="submit" className="btn btn-primary">{this.state.isEditing ? 'Update' : 'Save'}</button>
+                    </form>
+                </div>
+
                 {contents}
             </div>
         );

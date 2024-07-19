@@ -1,5 +1,7 @@
 ﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css'; // Импорт стилей Bootstrap
+import { Form, Button, Alert } from 'react-bootstrap';
 
 export function Login() {
     const [email, setEmail] = useState('');
@@ -24,30 +26,42 @@ export function Login() {
             window.location.reload();
         } else {
             const errorMessage = await response.text();
-            setError(`Failed to login: Wrong credentials`);
+            setError('Failed to login: Wrong credentials');
         }
     };
 
     return (
-        <div>
+        <div className="container mt-5">
             <h1>Login</h1>
-            <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email"
-            />
-            <br/>
-            <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-            />
-            <br />
-            <button onClick={handleLogin}>Login</button>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            <p>
+            {error && <Alert variant="danger">{error}</Alert>}
+            <Form>
+                <Form.Group controlId="formEmail">
+                    <Form.Label>Email</Form.Label>
+                    <Form.Control
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Enter your email"
+                        required
+                    />
+                </Form.Group>
+
+                <Form.Group controlId="formPassword" className="mt-3">
+                    <Form.Label>Password</Form.Label>
+                    <Form.Control
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Enter your password"
+                        required
+                    />
+                </Form.Group>
+
+                <Button variant="primary" className="mt-3" onClick={handleLogin}>
+                    Login
+                </Button>
+            </Form>
+            <p className="mt-3">
                 Don't have an account? <a href="/register">Register</a>
             </p>
         </div>

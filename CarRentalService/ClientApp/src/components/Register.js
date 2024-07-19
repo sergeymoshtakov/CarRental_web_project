@@ -1,5 +1,7 @@
 ﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css'; // Импорт стилей Bootstrap
+import { Form, Button, Alert } from 'react-bootstrap';
 
 export function Register() {
     const [name, setName] = useState('');
@@ -67,39 +69,59 @@ export function Register() {
     };
 
     return (
-        <div>
+        <div className="container mt-5">
             <h1>Register</h1>
-            <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Name"
-            />
-            <br />
-            <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email"
-            />
-            <br />
-            <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-            />
-            <br />
-            <input
-                type="text"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="Phone"
-            />
-            <br />
-            <button onClick={handleRegister}>Register</button>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            <p>
+            {error && <Alert variant="danger">{error}</Alert>}
+            <Form>
+                <Form.Group controlId="formName">
+                    <Form.Label>Name</Form.Label>
+                    <Form.Control
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Enter your name"
+                        required
+                    />
+                </Form.Group>
+
+                <Form.Group controlId="formEmail" className="mt-3">
+                    <Form.Label>Email</Form.Label>
+                    <Form.Control
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Enter your email"
+                        required
+                    />
+                </Form.Group>
+
+                <Form.Group controlId="formPassword" className="mt-3">
+                    <Form.Label>Password</Form.Label>
+                    <Form.Control
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Enter your password"
+                        required
+                    />
+                </Form.Group>
+
+                <Form.Group controlId="formPhone" className="mt-3">
+                    <Form.Label>Phone</Form.Label>
+                    <Form.Control
+                        type="text"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="Enter your phone number"
+                        required
+                    />
+                </Form.Group>
+
+                <Button variant="primary" className="mt-3" onClick={handleRegister}>
+                    Register
+                </Button>
+            </Form>
+            <p className="mt-3">
                 Already have an account? <a href="/login">Log in</a>
             </p>
         </div>

@@ -1,4 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css'; // Импорт стилей Bootstrap
 
 export function SearchCars() {
     const [countries, setCountries] = useState([]);
@@ -109,60 +110,136 @@ export function SearchCars() {
     }
 
     return (
-        <div>
-            <h1>Search Cars</h1>
-            <select value={selectedCountry} onChange={handleCountryChange}>
-                <option value="">Select Country</option>
-                {countries.map(country => <option key={country.id} value={country.id}>{country.name}</option>)}
-            </select>
-            <br />
-            <select value={selectedCity} onChange={handleCityChange} disabled={!selectedCountry}>
-                <option value="">Select City</option>
-                {cities.map(city => <option key={city.id} value={city.id}>{city.name}</option>)}
-            </select>
-            <br />
-            <button onClick={handleSearch}>Search</button>
-            <br />
-            <label>
-                Rental Date:
-                <input type="date" value={rentalDate} onChange={(e) => setRentalDate(e.target.value)} />
-            </label>
-            <label>
-                Rental Time:
-                <input type="time" value={rentalTime} onChange={(e) => setRentalTime(e.target.value)} />
-            </label>
-            <br />
-            <label>
-                Return Date:
-                <input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} />
-            </label>
-            <label>
-                Return Time:
-                <input type="time" value={returnTime} onChange={(e) => setReturnTime(e.target.value)} />
-            </label>
-            <br />
-            <label>
-                Rental Type:
-                <select value={rentalType} onChange={(e) => setRentalType(e.target.value)}>
-                    <option value="Daily">Daily</option>
-                    <option value="Hourly">Hourly</option>
-                    <option value="ByMinute">By Minute</option>
-                </select>
-            </label>
-            <br />
-            <ul>
-                {cars.map(car => (
-                    <li key={car.id}>
-                        {car.make} {car.model} - {car.city.name}, {car.city.country.name}
-                        <button onClick={() => rentCar(car.id)}>Rent</button>
-                    </li>
-                ))}
-            </ul>
+        <div className="container mt-4">
+            <h1 className="mb-4">Search Cars</h1>
+
+            <div className="row mb-4">
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label htmlFor="countrySelect">Country</label>
+                        <select
+                            id="countrySelect"
+                            className="form-control"
+                            value={selectedCountry}
+                            onChange={handleCountryChange}
+                        >
+                            <option value="">Select Country</option>
+                            {countries.map(country => (
+                                <option key={country.id} value={country.id}>{country.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <div className="form-group">
+                        <label htmlFor="citySelect">City</label>
+                        <select
+                            id="citySelect"
+                            className="form-control"
+                            value={selectedCity}
+                            onChange={handleCityChange}
+                            disabled={!selectedCountry}
+                        >
+                            <option value="">Select City</option>
+                            {cities.map(city => (
+                                <option key={city.id} value={city.id}>{city.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+                <div className="col-md-4 d-flex align-items-end">
+                    <button className="btn btn-primary" onClick={handleSearch}>Search</button>
+                </div>
+            </div>
+
+            <div className="row mb-4">
+                <div className="col-md-3">
+                    <div className="form-group">
+                        <label htmlFor="rentalDate">Rental Date</label>
+                        <input
+                            id="rentalDate"
+                            type="date"
+                            className="form-control"
+                            value={rentalDate}
+                            onChange={(e) => setRentalDate(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-3">
+                    <div className="form-group">
+                        <label htmlFor="rentalTime">Rental Time</label>
+                        <input
+                            id="rentalTime"
+                            type="time"
+                            className="form-control"
+                            value={rentalTime}
+                            onChange={(e) => setRentalTime(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-3">
+                    <div className="form-group">
+                        <label htmlFor="returnDate">Return Date</label>
+                        <input
+                            id="returnDate"
+                            type="date"
+                            className="form-control"
+                            value={returnDate}
+                            onChange={(e) => setReturnDate(e.target.value)}
+                        />
+                    </div>
+                </div>
+                <div className="col-md-3">
+                    <div className="form-group">
+                        <label htmlFor="returnTime">Return Time</label>
+                        <input
+                            id="returnTime"
+                            type="time"
+                            className="form-control"
+                            value={returnTime}
+                            onChange={(e) => setReturnTime(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div className="mb-4">
+                <div className="form-group">
+                    <label htmlFor="rentalType">Rental Type</label>
+                    <select
+                        id="rentalType"
+                        className="form-control"
+                        value={rentalType}
+                        onChange={(e) => setRentalType(e.target.value)}
+                    >
+                        <option value="Daily">Daily</option>
+                        <option value="Hourly">Hourly</option>
+                        <option value="ByMinute">By Minute</option>
+                    </select>
+                </div>
+            </div>
+
             {message.text && (
-                <div style={{ color: message.type === 'success' ? 'green' : 'red' }}>
+                <div className={`alert ${message.type === 'success' ? 'alert-success' : 'alert-danger'}`} role="alert">
                     {message.text}
                 </div>
             )}
+
+            <div className="row">
+                {cars.map(car => (
+                    <div key={car.id} className="col-md-4 mb-4">
+                        <div className="card">
+                            <div className="card-body">
+                                <h5 className="card-title">{car.make} {car.model}</h5>
+                                <p className="card-text">
+                                    <strong>Location:</strong> {car.city.name}, {car.city.country.name}
+                                </p>
+                                <button className="btn btn-primary" onClick={() => rentCar(car.id)}>Rent</button>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }
