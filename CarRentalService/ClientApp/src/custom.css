@@ -22,9 +22,9 @@ input, button, select {
     margin-bottom: 10px;
 }
 
-nav{
+nav {
     background-color: purple;
-    
+    display: inline;
 }
 
 .menu-link {

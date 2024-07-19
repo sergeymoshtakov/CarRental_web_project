@@ -1,7 +1,9 @@
 ﻿import React, { useState, useEffect } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css'; // Импорт стилей Bootstrap
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { useTranslation } from 'react-i18next';
 
 export function SearchCars() {
+    const { t } = useTranslation();
     const [countries, setCountries] = useState([]);
     const [cities, setCities] = useState([]);
     const [cars, setCars] = useState([]);
@@ -111,19 +113,19 @@ export function SearchCars() {
 
     return (
         <div className="container mt-4">
-            <h1 className="mb-4">Search Cars</h1>
+            <h1 className="mb-4">{t('searchCar')}</h1>
 
             <div className="row mb-4">
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label htmlFor="countrySelect">Country</label>
+                        <label htmlFor="countrySelect">{t('country')}</label>
                         <select
                             id="countrySelect"
                             className="form-control"
                             value={selectedCountry}
                             onChange={handleCountryChange}
                         >
-                            <option value="">Select Country</option>
+                            <option value="">{t('select-country')}</option>
                             {countries.map(country => (
                                 <option key={country.id} value={country.id}>{country.name}</option>
                             ))}
@@ -132,7 +134,7 @@ export function SearchCars() {
                 </div>
                 <div className="col-md-4">
                     <div className="form-group">
-                        <label htmlFor="citySelect">City</label>
+                        <label htmlFor="citySelect">{t('city')}</label>
                         <select
                             id="citySelect"
                             className="form-control"
@@ -140,7 +142,7 @@ export function SearchCars() {
                             onChange={handleCityChange}
                             disabled={!selectedCountry}
                         >
-                            <option value="">Select City</option>
+                            <option value="">{t('select-city')}</option>
                             {cities.map(city => (
                                 <option key={city.id} value={city.id}>{city.name}</option>
                             ))}
@@ -148,14 +150,14 @@ export function SearchCars() {
                     </div>
                 </div>
                 <div className="col-md-4 d-flex align-items-end">
-                    <button className="btn btn-primary" onClick={handleSearch}>Search</button>
+                    <button className="btn btn-primary" onClick={handleSearch}>{t('search')}</button>
                 </div>
             </div>
 
             <div className="row mb-4">
                 <div className="col-md-3">
                     <div className="form-group">
-                        <label htmlFor="rentalDate">Rental Date</label>
+                        <label htmlFor="rentalDate">{t('rental-date')}</label>
                         <input
                             id="rentalDate"
                             type="date"
@@ -167,7 +169,7 @@ export function SearchCars() {
                 </div>
                 <div className="col-md-3">
                     <div className="form-group">
-                        <label htmlFor="rentalTime">Rental Time</label>
+                        <label htmlFor="rentalTime">{t('rental-time')}</label>
                         <input
                             id="rentalTime"
                             type="time"
@@ -179,7 +181,7 @@ export function SearchCars() {
                 </div>
                 <div className="col-md-3">
                     <div className="form-group">
-                        <label htmlFor="returnDate">Return Date</label>
+                        <label htmlFor="returnDate">{t('return-date')}</label>
                         <input
                             id="returnDate"
                             type="date"
@@ -191,7 +193,7 @@ export function SearchCars() {
                 </div>
                 <div className="col-md-3">
                     <div className="form-group">
-                        <label htmlFor="returnTime">Return Time</label>
+                        <label htmlFor="returnTime">{t('return-time')}</label>
                         <input
                             id="returnTime"
                             type="time"
@@ -205,16 +207,16 @@ export function SearchCars() {
 
             <div className="mb-4">
                 <div className="form-group">
-                    <label htmlFor="rentalType">Rental Type</label>
+                    <label htmlFor="rentalType">{t('rental-type')}</label>
                     <select
                         id="rentalType"
                         className="form-control"
                         value={rentalType}
                         onChange={(e) => setRentalType(e.target.value)}
                     >
-                        <option value="Daily">Daily</option>
-                        <option value="Hourly">Hourly</option>
-                        <option value="ByMinute">By Minute</option>
+                        <option value="Daily">{t('daily')}</option>
+                        <option value="Hourly">{t('hourly')}</option>
+                        <option value="ByMinute">{t('by-minute')}</option>
                     </select>
                 </div>
             </div>
@@ -232,9 +234,9 @@ export function SearchCars() {
                             <div className="card-body">
                                 <h5 className="card-title">{car.make} {car.model}</h5>
                                 <p className="card-text">
-                                    <strong>Location:</strong> {car.city.name}, {car.city.country.name}
+                                    <strong>{t('location')}:</strong> {car.city.name}, {car.city.country.name}
                                 </p>
-                                <button className="btn btn-primary" onClick={() => rentCar(car.id)}>Rent</button>
+                                <button className="btn btn-primary" onClick={() => rentCar(car.id)}>{t('rent')}</button>
                             </div>
                         </div>
                     </div>

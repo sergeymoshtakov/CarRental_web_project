@@ -37,6 +37,7 @@
     <None Remove="Data\" />
     <None Remove="Services\" />
     <None Remove="Helpers\" />
+    <None Remove="ClientApp\public\locales\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -44,6 +45,7 @@
     <Folder Include="Data\" />
     <Folder Include="Services\" />
     <Folder Include="Helpers\" />
+    <Folder Include="ClientApp\public\locales\" />
   </ItemGroup>
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
     <!-- Ensure Node.js is installed -->

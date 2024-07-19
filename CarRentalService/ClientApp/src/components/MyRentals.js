@@ -1,7 +1,9 @@
 ﻿import React, { useState, useEffect } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css'; // Импорт стилей Bootstrap
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { useTranslation } from 'react-i18next';
 
 export function MyRentals() {
+    const { t } = useTranslation();
     const [rentals, setRentals] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -68,18 +70,18 @@ export function MyRentals() {
 
     return (
         <div className="container mt-4">
-            <h1 className="mb-4">My Rentals</h1>
+            <h1 className="mb-4">{t('myRentals')}</h1>
 
             <table className="table table-striped table-bordered">
                 <thead className="thead-dark">
                     <tr>
                         <th>#</th>
-                        <th>Car</th>
-                        <th>Location</th>
-                        <th>Rental Date</th>
-                        <th>Return Date</th>
-                        <th>Price</th>
-                        <th>Actions</th>
+                        <th>{t('car')}</th>
+                        <th>{t('location')}</th>
+                        <th>{t('rental-date')}</th>
+                        <th>{t('return-date')}</th>
+                        <th>{t('price')}</th>
+                        <th>{t('actions')}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -92,7 +94,7 @@ export function MyRentals() {
                             <td>{new Date(rental.returnDate).toLocaleDateString()}</td>
                             <td>${calculateRentalPrice(rental.rentalDate, rental.returnDate, rental.car.pricePerDay, rental.paymentMethod).toFixed(2)}</td>
                             <td>
-                                <button className="btn btn-danger" onClick={() => handleCancel(rental.id)}>Cancel</button>
+                                <button className="btn btn-danger" onClick={() => handleCancel(rental.id)}>{t('cancel')}</button>
                             </td>
                         </tr>
                     ))}
@@ -101,11 +103,11 @@ export function MyRentals() {
 
             <div className="d-flex justify-content-between">
                 <button className="btn btn-primary" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-                    Previous
+                    {t('previous')}
                 </button>
-                <span>Page {currentPage} of {totalPages}</span>
+                <span>{t('page')} {currentPage} {t('of')} {totalPages}</span>
                 <button className="btn btn-primary" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
-                    Next
+                    {t('next')}
                 </button>
             </div>
         </div>

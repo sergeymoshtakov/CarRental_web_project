@@ -1,73 +1,35 @@
-﻿import React, { Component } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css'; // Импорт стилей Bootstrap
+﻿import React, { useState, useEffect } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css'; 
+import { useTranslation } from 'react-i18next';
 
-export class Cities extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            cities: [],
-            countries: [],
-            loading: true,
-            city: { name: '', countryId: '' },
-            isEditing: false,
-            cityId: null,
-            error: null
-        };
+export function Cities() {
+    const { t } = useTranslation();
+    const [cities, setCities] = useState([]);
+    const [countries, setCountries] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [city, setCity] = useState({ name: '', countryId: '' });
+    const [isEditing, setIsEditing] = useState(false);
+    const [cityId, setCityId] = useState(null);
+    const [error, setError] = useState(null);
 
-        this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.editCity = this.editCity.bind(this);
-        this.deleteCity = this.deleteCity.bind(this);
-    }
+    useEffect(() => {
+        populateCitiesData();
+        populateCountriesData();
+    }, []);
 
-    componentDidMount() {
-        this.populateCitiesData();
-        this.populateCountriesData();
-    }
-
-    static renderCitiesTable(cities, editCity, deleteCity) {
-        return (
-            <table className="table table-striped table-bordered">
-                <thead className="thead-dark">
-                    <tr>
-                        <th>Name</th>
-                        <th>Country</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {cities.map(city => (
-                        <tr key={city.id}>
-                            <td>{city.name}</td>
-                            <td>{city.country ? city.country.name : 'Unknown'}</td>
-                            <td>
-                                <button className="btn btn-warning btn-sm me-2" onClick={() => editCity(city.id)}>Edit</button>
-                                <button className="btn btn-danger btn-sm" onClick={() => deleteCity(city.id)}>Delete</button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        );
-    }
-
-    handleChange(event) {
+    const handleChange = (event) => {
         const { name, value } = event.target;
-        this.setState(prevState => ({
-            city: {
-                ...prevState.city,
-                [name]: value
-            },
-            error: null
+        setCity(prevCity => ({
+            ...prevCity,
+            [name]: value
         }));
-    }
+        setError(null);
+    };
 
-    async handleSubmit(event) {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        const { city, isEditing, cityId } = this.state;
-
         if (!city.countryId) {
-            this.setState({ error: 'Country is required.' });
+            setError(t('countryRequired'));
             return;
         }
 
@@ -86,121 +48,146 @@ export class Cities extends Component {
                 throw new Error(`HTTP error! Status: ${response.status}, Message: ${JSON.stringify(errorMessage)}`);
             }
 
-            this.setState({ city: { name: '', countryId: '' }, isEditing: false, cityId: null, error: null });
-            this.populateCitiesData();
+            setCity({ name: '', countryId: '' });
+            setIsEditing(false);
+            setCityId(null);
+            setError(null);
+            populateCitiesData();
         } catch (error) {
             console.error('Error:', error);
-            this.setState({ error: error.message });
+            setError(error.message);
         }
-    }
+    };
 
-    async editCity(id) {
+    const editCity = async (id) => {
         try {
             const response = await fetch(`cities/${id}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const city = await response.json();
-            this.setState({ city, isEditing: true, cityId: id, error: null });
+            setCity(city);
+            setIsEditing(true);
+            setCityId(id);
+            setError(null);
         } catch (error) {
             console.error('Error:', error);
-            this.setState({ error: error.message });
+            setError(error.message);
         }
-    }
+    };
 
-    async deleteCity(id) {
+    const deleteCity = async (id) => {
         try {
             const response = await fetch(`cities/${id}`, { method: 'DELETE' });
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
-            this.populateCitiesData();
+            populateCitiesData();
         } catch (error) {
             console.error('Error:', error);
-            this.setState({ error: error.message });
+            setError(error.message);
         }
-    }
+    };
 
-    render() {
-        const { loading, cities, countries, city, error } = this.state;
-
-        let contents = loading ? (
-            <p><em>Loading...</em></p>
-        ) : (
-            Cities.renderCitiesTable(cities, this.editCity, this.deleteCity)
-        );
-
-        return (
-            <div className="container mt-4">
-                <h1 id="tableLabel" className="mb-4">Cities</h1>
-                {error && <div className="alert alert-danger">{error}</div>}
-                <div className="mb-4">
-                    <h2>{this.state.isEditing ? 'Edit City' : 'Add City'}</h2>
-                    <form onSubmit={this.handleSubmit}>
-                        <div className="mb-3">
-                            <label htmlFor="name" className="form-label">Name</label>
-                            <input
-                                type="text"
-                                id="name"
-                                name="name"
-                                className="form-control"
-                                value={city.name}
-                                onChange={this.handleChange}
-                                placeholder="City Name"
-                                required
-                            />
-                        </div>
-                        <div className="mb-3">
-                            <label htmlFor="countryId" className="form-label">Country</label>
-                            <select
-                                id="countryId"
-                                name="countryId"
-                                className="form-select"
-                                value={city.countryId}
-                                onChange={this.handleChange}
-                                required
-                            >
-                                <option value="">Select Country</option>
-                                {countries.map(country => (
-                                    <option key={country.id} value={country.id}>
-                                        {country.name}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <button type="submit" className="btn btn-primary">{this.state.isEditing ? 'Update' : 'Save'}</button>
-                    </form>
-                </div>
-                {contents}
-            </div>
-        );
-    }
-
-    async populateCitiesData() {
+    const populateCitiesData = async () => {
         try {
             const response = await fetch('cities');
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const data = await response.json();
-            this.setState({ cities: data, loading: false, error: null });
+            setCities(data);
+            setLoading(false);
+            setError(null);
         } catch (error) {
             console.error('Error:', error);
-            this.setState({ error: error.message });
+            setError(error.message);
         }
-    }
+    };
 
-    async populateCountriesData() {
+    const populateCountriesData = async () => {
         try {
             const response = await fetch('countries');
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const data = await response.json();
-            this.setState({ countries: data, error: null });
+            setCountries(data);
+            setError(null);
         } catch (error) {
             console.error('Error:', error);
-            this.setState({ error: error.message });
+            setError(error.message);
         }
-    }
+    };
+
+    const renderCitiesTable = (cities) => {
+        return (
+            <table className="table table-striped table-bordered">
+                <thead className="thead-dark">
+                    <tr>
+                        <th>{t('name')}</th>
+                        <th>{t('country')}</th>
+                        <th>{t('actions')}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {cities.map(city => (
+                        <tr key={city.id}>
+                            <td>{city.name}</td>
+                            <td>{city.country ? city.country.name : t('unknown')}</td>
+                            <td>
+                                <button className="btn btn-warning btn-sm me-2" onClick={() => editCity(city.id)}>{t('edit')}</button>
+                                <button className="btn btn-danger btn-sm" onClick={() => deleteCity(city.id)}>{t('delete')}</button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        );
+    };
+
+    return (
+        <div className="container mt-4">
+            <h1 id="tableLabel" className="mb-4">{t('cities')}</h1>
+            {error && <div className="alert alert-danger">{error}</div>}
+            <div className="mb-4">
+                <h2>{isEditing ? t('editCity') : t('addCity')}</h2>
+                <form onSubmit={handleSubmit}>
+                    <div className="mb-3">
+                        <label htmlFor="name" className="form-label">{t('name')}</label>
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            className="form-control"
+                            value={city.name}
+                            onChange={handleChange}
+                            placeholder={t('cityName')}
+                            required
+                        />
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="countryId" className="form-label">{t('country')}</label>
+                        <select
+                            id="countryId"
+                            name="countryId"
+                            className="form-select"
+                            value={city.countryId}
+                            onChange={handleChange}
+                            required
+                        >
+                            <option value="">{t('selectCountry')}</option>
+                            {countries.map(country => (
+                                <option key={country.id} value={country.id}>
+                                    {country.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <button type="submit" className="btn btn-primary">{isEditing ? t('update') : t('save')}</button>
+                </form>
+            </div>
+            {loading ? <p><em>{t('loading')}</em></p> : renderCitiesTable(cities)}
+        </div>
+    );
 }

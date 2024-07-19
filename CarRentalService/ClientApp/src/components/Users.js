@@ -1,69 +1,26 @@
-﻿import React, { Component } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css'; // Импорт стилей Bootstrap
+﻿import React, { useState, useEffect } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { useTranslation } from 'react-i18next';
 
-export class Users extends Component {
-    static displayName = Users.name;
+export function Users() {
+    const { t } = useTranslation();
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState({ name: '', email: '', phone: '', role: '', password: '' });
+    const [isEditing, setIsEditing] = useState(false);
+    const [userId, setUserId] = useState(null);
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            users: [],
-            loading: true,
-            user: { name: '', email: '', phone: '', role: '', password: '' },
-            isEditing: false,
-            userId: null
-        };
+    useEffect(() => {
+        populateUsersData();
+    }, []);
 
-        this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.editUser = this.editUser.bind(this);
-        this.deleteUser = this.deleteUser.bind(this);
-    }
-
-    componentDidMount() {
-        this.populateUsersData();
-    }
-
-    static renderUsersTable(users, editUser, deleteUser) {
-        return (
-            <table className="table table-striped table-bordered">
-                <thead className="thead-dark">
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Role</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {users.map(user => (
-                        <tr key={user.userId}>
-                            <td>{user.name}</td>
-                            <td>{user.email}</td>
-                            <td>{user.phone}</td>
-                            <td>{user.role}</td>
-                            <td>
-                                <button className="btn btn-warning btn-sm me-2" onClick={() => editUser(user.userId)}>Edit</button>
-                                <button className="btn btn-danger btn-sm" onClick={() => deleteUser(user.userId)}>Delete</button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        );
-    }
-
-    handleChange(event) {
+    const handleChange = (event) => {
         const { name, value } = event.target;
-        this.setState(prevState => ({
-            user: { ...prevState.user, [name]: value }
-        }));
-    }
+        setUser(prevUser => ({ ...prevUser, [name]: value }));
+    };
 
-    async handleSubmit(event) {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        const { user, isEditing, userId } = this.state;
         const response = isEditing
             ? await fetch(`users/${userId}`, {
                 method: 'PUT',
@@ -77,68 +34,97 @@ export class Users extends Component {
             });
 
         if (response.ok) {
-            this.setState({ user: { name: '', email: '', phone: '', role: '', password: '' }, isEditing: false, userId: null });
-            this.populateUsersData();
+            setUser({ name: '', email: '', phone: '', role: '', password: '' });
+            setIsEditing(false);
+            setUserId(null);
+            populateUsersData();
         }
-    }
+    };
 
-    async editUser(id) {
+    const editUser = async (id) => {
         const response = await fetch(`users/${id}`);
         const user = await response.json();
-        this.setState({ user, isEditing: true, userId: id });
-    }
+        setUser(user);
+        setIsEditing(true);
+        setUserId(id);
+    };
 
-    async deleteUser(id) {
+    const deleteUser = async (id) => {
         const response = await fetch(`users/${id}`, { method: 'DELETE' });
         if (response.ok) {
-            this.populateUsersData();
+            populateUsersData();
         }
-    }
+    };
 
-    render() {
-        let contents = this.state.loading
-            ? <p><em>Loading...</em></p>
-            : Users.renderUsersTable(this.state.users, this.editUser, this.deleteUser);
-
-        return (
-            <div className="container mt-4">
-                <h1 id="tableLabel" className="mb-4">Users</h1>
-
-                <div className="mb-4">
-                    <h2>{this.state.isEditing ? 'Edit User' : 'Add User'}</h2>
-                    <form onSubmit={this.handleSubmit}>
-                        <div className="mb-3">
-                            <label htmlFor="name" className="form-label">Name</label>
-                            <input type="text" id="name" name="name" className="form-control" value={this.state.user.name} onChange={this.handleChange} placeholder="Name" required />
-                        </div>
-                        <div className="mb-3">
-                            <label htmlFor="email" className="form-label">Email</label>
-                            <input type="email" id="email" name="email" className="form-control" value={this.state.user.email} onChange={this.handleChange} placeholder="Email" required />
-                        </div>
-                        <div className="mb-3">
-                            <label htmlFor="password" className="form-label">Password</label>
-                            <input type="password" id="password" name="password" className="form-control" value={this.state.user.password} onChange={this.handleChange} placeholder="Password" required />
-                        </div>
-                        <div className="mb-3">
-                            <label htmlFor="phone" className="form-label">Phone</label>
-                            <input type="text" id="phone" name="phone" className="form-control" value={this.state.user.phone} onChange={this.handleChange} placeholder="Phone" />
-                        </div>
-                        <div className="mb-3">
-                            <label htmlFor="role" className="form-label">Role</label>
-                            <input type="text" id="role" name="role" className="form-control" value={this.state.user.role} onChange={this.handleChange} placeholder="Role" />
-                        </div>
-                        <button type="submit" className="btn btn-primary">{this.state.isEditing ? 'Update' : 'Save'}</button>
-                    </form>
-                </div>
-
-                {contents}
-            </div>
-        );
-    }
-
-    async populateUsersData() {
+    const populateUsersData = async () => {
         const response = await fetch('users');
         const data = await response.json();
-        this.setState({ users: data, loading: false });
-    }
+        setUsers(data);
+        setLoading(false);
+    };
+
+    const renderUsersTable = (users) => {
+        return (
+            <table className="table table-striped table-bordered">
+                <thead className="thead-dark">
+                    <tr>
+                        <th>{t('name')}</th>
+                        <th>{t('email')}</th>
+                        <th>{t('phone')}</th>
+                        <th>{t('role')}</th>
+                        <th>{t('actions')}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {users.map(user => (
+                        <tr key={user.userId}>
+                            <td>{user.name}</td>
+                            <td>{user.email}</td>
+                            <td>{user.phone}</td>
+                            <td>{user.role}</td>
+                            <td>
+                                <button className="btn btn-warning btn-sm me-2" onClick={() => editUser(user.userId)}>{t('edit')}</button>
+                                <button className="btn btn-danger btn-sm" onClick={() => deleteUser(user.userId)}>{t('delete')}</button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        );
+    };
+
+    return (
+        <div className="container mt-4">
+            <h1 id="tableLabel" className="mb-4">{t('users')}</h1>
+
+            <div className="mb-4">
+                <h2>{isEditing ? t('editUser') : t('addUser')}</h2>
+                <form onSubmit={handleSubmit}>
+                    <div className="mb-3">
+                        <label htmlFor="name" className="form-label">{t('name')}</label>
+                        <input type="text" id="name" name="name" className="form-control" value={user.name} onChange={handleChange} placeholder={t('name')} required />
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="email" className="form-label">{t('email')}</label>
+                        <input type="email" id="email" name="email" className="form-control" value={user.email} onChange={handleChange} placeholder={t('email')} required />
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="password" className="form-label">{t('password')}</label>
+                        <input type="password" id="password" name="password" className="form-control" value={user.password} onChange={handleChange} placeholder={t('password')} required />
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="phone" className="form-label">{t('phone')}</label>
+                        <input type="text" id="phone" name="phone" className="form-control" value={user.phone} onChange={handleChange} placeholder={t('phone')} />
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="role" className="form-label">{t('role')}</label>
+                        <input type="text" id="role" name="role" className="form-control" value={user.role} onChange={handleChange} placeholder={t('role')} />
+                    </div>
+                    <button type="submit" className="btn btn-primary">{isEditing ? t('update') : t('save')}</button>
+                </form>
+            </div>
+
+            {loading ? <p><em>{t('loading')}</em></p> : renderUsersTable(users)}
+        </div>
+    );
 }
