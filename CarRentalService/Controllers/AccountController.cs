@@ -7,6 +7,10 @@ using CarRentalService.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using CarRentalService.Helpers;
+using Microsoft.Extensions.Options;
+using System.Net;
+using System.Net.Mail;
 
 namespace CarRentalService.Controllers
 {
@@ -16,11 +20,14 @@ namespace CarRentalService.Controllers
     {
         private readonly ApplicationDBContext _context;
         private readonly IUserSessionService _userSessionService;
+        private readonly EmailSettings _emailSettings;
 
-        public AccountController(ApplicationDBContext context, IUserSessionService userSessionService)
+
+        public AccountController(ApplicationDBContext context, IUserSessionService userSessionService, IOptions<EmailSettings> emailSettings)
         {
             _context = context;
             _userSessionService = userSessionService;
+            _emailSettings = emailSettings.Value;
         }
 
         [HttpPost("register")]
@@ -40,6 +47,16 @@ namespace CarRentalService.Controllers
             user.Role = "user";
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
+
+            string htmlBody = $@"
+            <html>
+            <body>
+                <p>Dear {user.Name},</p>
+                <p>Welcome to our premier car rental service. Discover our extensive range of vehicles and enjoy a smooth and hassle-free rental experience.</p>
+            </body>
+            </html>";
+
+            await SendEmail(user.Email, "Welcome to Car Rental Service!", htmlBody);
 
             return Ok(user);
         }
@@ -118,6 +135,31 @@ namespace CarRentalService.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        private async Task SendEmail(string toEmail, string subject, string body)
+        {
+            try
+            {
+                MailAddress from = new MailAddress(_emailSettings.FromAddress, _emailSettings.FromName);
+                MailAddress to = new MailAddress(toEmail);
+                MailMessage m = new MailMessage(from, to)
+                {
+                    Subject = subject,
+                    Body = body,
+                    IsBodyHtml = true
+                };
+                SmtpClient smtp = new SmtpClient(_emailSettings.SmtpServer, _emailSettings.SmtpPort)
+                {
+                    Credentials = new NetworkCredential(_emailSettings.SmtpUsername, _emailSettings.SmtpPassword),
+                    EnableSsl = true
+                };
+                await smtp.SendMailAsync(m);
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Failed to send email. Error message: {ex.Message}");
             }
         }
     }
