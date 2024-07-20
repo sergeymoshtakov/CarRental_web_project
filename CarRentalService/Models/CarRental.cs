@@ -18,6 +18,6 @@ namespace CarRentalService.Models
         [Required]
         public DateTime ReturnDate { get; set; }
         [Required]
-        public string RentalType { get; set; }  // Changed from enum to string
+        public string RentalType { get; set; } 
     }
 }

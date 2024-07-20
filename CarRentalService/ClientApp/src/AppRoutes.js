@@ -6,31 +6,32 @@ import { SearchCars } from "./components/SearchCars";
 import { MyRentals } from "./components/MyRentals";
 import { Countries } from "./components/Countries";
 import { Cities } from "./components/Cities";
+import { Cars } from "./components/Cars";
 
 const AppRoutes = [
-  {
-    index: true,
-    element: <Home />
-  },
-  {
-    path: '/users',
-    element: <Users />
-   },
-   {
-    path: '/login',
-    element: <Login />
-   },
-   {
-    path: '/register',
-    element: <Register />
+    {
+        index: true,
+        element: <Home />
     },
     {
-     path: '/search-cars',
-     element: <SearchCars />
+        path: '/users',
+        element: <Users />
     },
     {
-     path: '/my-rentals',
-     element: <MyRentals />
+        path: '/login',
+        element: <Login />
+    },
+    {
+        path: '/register',
+        element: <Register />
+    },
+    {
+        path: '/search-cars',
+        element: <SearchCars />
+    },
+    {
+        path: '/my-rentals',
+        element: <MyRentals />
     },
     {
         path: '/cities',
@@ -39,6 +40,10 @@ const AppRoutes = [
     {
         path: '/countries',
         element: <Countries />
+    },
+    {
+        path: '/cars',
+        element: <Cars /> 
     },
 ];
 

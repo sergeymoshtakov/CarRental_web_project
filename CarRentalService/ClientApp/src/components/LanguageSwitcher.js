@@ -20,8 +20,10 @@ const LanguageSwitcher = () => {
             <DropdownMenu>
                 <DropdownItem onClick={() => handleSelectLanguage('en')}>English</DropdownItem>
                 <DropdownItem onClick={() => handleSelectLanguage('de')}>Deutsch</DropdownItem>
-                <DropdownItem onClick={() => handleSelectLanguage('uk')}>Українська</DropdownItem>
-                <DropdownItem onClick={() => handleSelectLanguage('ru')}>Русский</DropdownItem>
+                {/*<DropdownItem onClick={() => handleSelectLanguage('uk')}>Українська</DropdownItem>*/}
+                {/*<DropdownItem onClick={() => handleSelectLanguage('ru')}>Русский</DropdownItem>*/}
+                <DropdownItem onClick={() => handleSelectLanguage('fr')}>Français</DropdownItem>
+                <DropdownItem onClick={() => handleSelectLanguage('it')}>Italiano</DropdownItem>
             </DropdownMenu>
         </Dropdown>
     );

@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css'; 
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { useTranslation } from 'react-i18next';
 
 export function Cities() {
@@ -13,8 +13,8 @@ export function Cities() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        populateCitiesData();
-        populateCountriesData();
+        fetchCities();
+        fetchCountries();
     }, []);
 
     const handleChange = (event) => {
@@ -34,13 +34,13 @@ export function Cities() {
         }
 
         try {
-            const url = isEditing ? `cities/${cityId}` : 'cities';
+            const url = isEditing ? `/cities/${cityId}` : '/cities';
             const method = isEditing ? 'PUT' : 'POST';
 
             const response = await fetch(url, {
                 method: method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(city)
+                body: JSON.stringify({ name: city.name, countryId: city.countryId })
             });
 
             if (!response.ok) {
@@ -52,7 +52,7 @@ export function Cities() {
             setIsEditing(false);
             setCityId(null);
             setError(null);
-            populateCitiesData();
+            fetchCities();
         } catch (error) {
             console.error('Error:', error);
             setError(error.message);
@@ -61,12 +61,12 @@ export function Cities() {
 
     const editCity = async (id) => {
         try {
-            const response = await fetch(`cities/${id}`);
+            const response = await fetch(`/cities/${id}`);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const city = await response.json();
-            setCity(city);
+            setCity({ name: city.name, countryId: city.countryId });
             setIsEditing(true);
             setCityId(id);
             setError(null);
@@ -78,20 +78,21 @@ export function Cities() {
 
     const deleteCity = async (id) => {
         try {
-            const response = await fetch(`cities/${id}`, { method: 'DELETE' });
+            const response = await fetch(`/cities/${id}`, { method: 'DELETE' });
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
-            populateCitiesData();
+            fetchCities();
         } catch (error) {
             console.error('Error:', error);
             setError(error.message);
         }
     };
 
-    const populateCitiesData = async () => {
+    const fetchCities = async (countryId = '') => {
         try {
-            const response = await fetch('cities');
+            const url = countryId ? `/cities?countryId=${countryId}` : '/cities';
+            const response = await fetch(url);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -105,9 +106,9 @@ export function Cities() {
         }
     };
 
-    const populateCountriesData = async () => {
+    const fetchCountries = async () => {
         try {
-            const response = await fetch('countries');
+            const response = await fetch('/countries');
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -176,7 +177,7 @@ export function Cities() {
                             onChange={handleChange}
                             required
                         >
-                            <option value="">{t('selectCountry')}</option>
+                            <option value="">{t('select-country')}</option>
                             {countries.map(country => (
                                 <option key={country.id} value={country.id}>
                                     {country.name}

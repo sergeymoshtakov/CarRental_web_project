@@ -77,6 +77,9 @@ export function NavMenu(){
                                         <NavItem>
                                             <NavLink tag={Link} className="menu-link" to="/countries">{t('countries')}</NavLink>
                                         </NavItem>
+                                        <NavItem>
+                                            <NavLink tag={Link} className="menu-link" to="/cars">{t('cars')}</NavLink>
+                                        </NavItem>
                                     </>
                                 ) : (
                                     <>

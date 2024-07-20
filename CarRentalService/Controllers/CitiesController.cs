@@ -45,14 +45,20 @@ namespace CarRentalService.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostCity([FromBody] City city)
+        public async Task<IActionResult> PostCity([FromBody] CityDto cityDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            city.Id = Guid.NewGuid();
+            var city = new City
+            {
+                Id = Guid.NewGuid(),
+                Name = cityDto.Name,
+                CountryId = cityDto.CountryId
+            };
+
             _context.Cities.Add(city);
             await _context.SaveChangesAsync();
 
@@ -60,7 +66,7 @@ namespace CarRentalService.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCity(Guid id, [FromBody] City city)
+        public async Task<IActionResult> PutCity(Guid id, [FromBody] CityDto cityDto)
         {
             if (!ModelState.IsValid)
             {
@@ -73,8 +79,8 @@ namespace CarRentalService.Controllers
                 return NotFound();
             }
 
-            existingCity.Name = city.Name;
-            existingCity.CountryId = city.CountryId;
+            existingCity.Name = cityDto.Name;
+            existingCity.CountryId = cityDto.CountryId;
 
             await _context.SaveChangesAsync();
             return Ok(existingCity);
