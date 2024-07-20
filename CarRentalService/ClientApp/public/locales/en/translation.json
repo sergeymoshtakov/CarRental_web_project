@@ -66,5 +66,19 @@
   "license-plate": "License plate",
   "price-per-day": "Price per day",
   "unknown": "Unknown",
-  "rentals": "Rentals"
+  "rentals": "Rentals",
+  "my-statistics": "My statistics",
+  "userStatistics": "User Rental Statistics",
+  "totalSpent": "Total Spent:",
+  "uniqueCarsRented": "Unique Cars Rented:",
+  "totalDaysRented": "Total Days Rented:",
+  "totalHoursRented": "Total Hours Rented:",
+  "rentalsByCity": "Rentals by City",
+  "rentalsByCar": "Rentals by Car",
+  "moneyByCity": "Money Spent by City",
+  "moneyByCar": "Money Spent by Car",
+  "timeByCity": "Time Spent by City (Hours)",
+  "timeByCar": "Time Spent by Car (Hours)",
+  "my-statistics-description": "Manage and track your personal rental statistics. Get detailed information about your expenses, rental cars, days and hours.",
+  "browse-statistics": "Browse statistics"
 }

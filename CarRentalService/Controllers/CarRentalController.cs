@@ -288,6 +288,70 @@ namespace CarRentalService.Controllers
                 return StatusCode(500, "Internal server error while canceling the rental.");
             }
         }
+
+        [HttpGet("userStatistics")]
+        public async Task<IActionResult> GetUserStatistics()
+        {
+            if (!Request.Cookies.ContainsKey("userId"))
+            {
+                return Unauthorized("User ID not found in cookies");
+            }
+
+            var userId = Guid.Parse(Request.Cookies["userId"]);
+
+            var rentals = await _context.CarRentals
+                .Include(r => r.Car)
+                .ThenInclude(car => car.City)
+                .ThenInclude(city => city.Country)
+                .Where(r => r.UserId == userId)
+                .ToListAsync();
+
+            var totalSpent = rentals.Sum(r => CalculateRentalPrice(r.RentalDate, r.ReturnDate, r.Car.PricePerDay, r.RentalType));
+            var uniqueCarsRented = rentals.Select(r => r.CarId).Distinct().Count();
+            var totalDaysRented = rentals.Sum(r => (r.ReturnDate - r.RentalDate).Days);
+            var totalHoursRented = rentals.Sum(r => (r.ReturnDate - r.RentalDate).TotalHours);
+
+            var rentalsByCity = rentals
+                .GroupBy(r => r.Car.City.Name)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            var rentalsByCar = rentals
+                .GroupBy(r => r.Car.Make + " " + r.Car.Model)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            var moneyByCity = rentals
+                .GroupBy(r => r.Car.City.Name)
+                .ToDictionary(g => g.Key, g => g.Sum(r => CalculateRentalPrice(r.RentalDate, r.ReturnDate, r.Car.PricePerDay, r.RentalType)));
+
+            var moneyByCar = rentals
+                .GroupBy(r => r.Car.Make + " " + r.Car.Model)
+                .ToDictionary(g => g.Key, g => g.Sum(r => CalculateRentalPrice(r.RentalDate, r.ReturnDate, r.Car.PricePerDay, r.RentalType)));
+
+            var timeByCity = rentals
+                .GroupBy(r => r.Car.City.Name)
+                .ToDictionary(g => g.Key, g => g.Sum(r => (r.ReturnDate - r.RentalDate).TotalHours));
+
+            var timeByCar = rentals
+                .GroupBy(r => r.Car.Make + " " + r.Car.Model)
+                .ToDictionary(g => g.Key, g => g.Sum(r => (r.ReturnDate - r.RentalDate).TotalHours));
+
+            var statistics = new
+            {
+                totalSpent,
+                uniqueCarsRented,
+                totalDaysRented,
+                totalHoursRented,
+                rentalsByCity,
+                rentalsByCar,
+                moneyByCity,
+                moneyByCar,
+                timeByCity,
+                timeByCar
+            };
+
+            return Ok(statistics);
+        }
+
     }
 
     public class RentCarRequest

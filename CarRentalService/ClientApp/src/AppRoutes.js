@@ -7,6 +7,7 @@ import { MyRentals } from "./components/MyRentals";
 import { Countries } from "./components/Countries";
 import { Cities } from "./components/Cities";
 import { Cars } from "./components/Cars";
+import { UserStatistics } from "./components/UserStatistics";
 
 const AppRoutes = [
     {
@@ -44,6 +45,10 @@ const AppRoutes = [
     {
         path: '/cars',
         element: <Cars /> 
+    },
+    {
+        path: '/user-statistics',
+        element: <UserStatistics />
     },
 ];
 

@@ -89,6 +89,9 @@ export function NavMenu(){
                                         <NavItem>
                                             <NavLink tag={Link} className="menu-link" to="/my-rentals">{t('myRentals')}</NavLink>
                                         </NavItem>
+                                        <NavItem>
+                                            <NavLink tag={Link} className="menu-link" to="/user-statistics">{t('my-statistics')}</NavLink>
+                                        </NavItem>
                                     </>
                                 )}
                                 <NavItem>
