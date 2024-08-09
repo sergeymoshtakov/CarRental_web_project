@@ -1,38 +1,38 @@
 # CarRentalService
 
-Призначення: сервіс для пошуку машин у місті та заказу аренди машини. Машину можна знайти у конкретному місті та країні, вибрати час аренди та замовити. Потім на ваш E-Mail приходе письмо з підтвердженням заказу. Окрім цього ви бачите список аренд. Для адміна доступна функція просмотру користувачів.
-Технологія: ASP.Net та Entity Framework для взаємодії з базою данних MySql(так як я розробляю на макє) + React JS в якості Front End.
+Purpose: This service is for finding cars in a city and booking a car rental. You can find a car in a specific city and country, select the rental time, and make a reservation. Then, a confirmation email will be sent to you. Additionally, you can view a list of all rentals. An admin has access to the feature for viewing users.
+Technology: ASP.Net and Entity Framework for interacting with the MySQL database (since I am developing on a Mac) + React JS for the front end.
 
 ![result](Images/result-1.png)
-Рєстрація
+Registration
 
 ![result](Images/result-2.png)
-Логін
+Login
 
 ![result](Images/result-3.png)
-Головна сторінка (поки не так багато інфи)
+Home Page
 
 ![result](Images/result-4.png)
-Сторінка пошуку машин
+Car Search Page
 
 ![result](Images/result-5.png)
-Успішне замовлення машини
+Successful Car Reservation
 
 ![result](Images/result-6.png)
-Список усіх замовлень машин.
+List of All Car Reservations.
 
-## Зміни проєкта
+## Project Changes
 
-Серед змін було додавання можливості для аренди машини по часам та по хвилинам. Також було додано дизайн за допомогою бібліотеки Bootstrap
+Recent changes include adding the ability to rent cars by the hour and minute. A design update was also made using the Bootstrap library.
 
 ![result](Images/result-7.png)
-Головна сторінка
+Home Page
 
 ![result](Images/result-8.png)
-Крад операції у адмінів
+Admin Operations Panel
 
 ![result](Images/result-9.png)
-Пошук машини
+Car Search
 
 ![result](Images/result-10.png)
-Просмотр списка аренд машин
+View List of Car Rentals
